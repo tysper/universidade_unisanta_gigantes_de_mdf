@@ -25,7 +25,11 @@ char UART_receive(void);
 void PWM_init(void);
 void motor_control(uint8_t motor, uint8_t direction, uint8_t speed);
 int8_t map_joystick_value(uint8_t value);
+void verificarSensor(void);
+void atualizarVidas(void);
+void girar180(void);
 
+volatile uint8_t vidas = 3;        //Variável das vidas
 volatile uint16_t total_ovf; // variável para contar os overflows para ligar o laser
 void timer2_init_laser(void);
 void ligaLED(void);
@@ -33,7 +37,7 @@ void pinosConfigurados(void);
 
 int main(void)
 {
-    // Inicialização de UART e PWM
+    / Inicialização de UART e PWM
     UART_init(9600); // Comunicação serial com baudrate 9600
     PWM_init();      // Inicializa os PWMs
 
@@ -47,34 +51,32 @@ int main(void)
     uint8_t joystick_x = 127; // Posição neutra no eixo X
     uint8_t joystick_y = 127; // Posição neutra no eixo Y
 
-    // Funções para controle dos pinos e  timer que controla o laser
+    // Funções para controle dos pinos e timer que controla o laser
     pinosConfigurados();
     timer2_init_laser();
     sei(); // habilita interrupções globais
 
     while (1)
     {
-        // Recebe os 2 primeiros bytes do pacote (eixos do joystick)
+        // Verifica o sensor de laser
+        verificarSensor();
+
+        // Controle do joystick existente
         joystick_x = UART_receive();
         joystick_y = UART_receive();
 
-        // Converte os valores do joystick para uma faixa de -100 a +100
         int8_t x_mapped = map_joystick_value(joystick_x);
         int8_t y_mapped = map_joystick_value(joystick_y);
 
-        // Calcula a velocidade de cada motor com base nos valores mapeados
-        int8_t motor1_speed = y_mapped + x_mapped; // Motor esquerdo
-        int8_t motor2_speed = y_mapped - x_mapped; // Motor direito
+        int8_t motor1_speed = y_mapped + x_mapped;
+        int8_t motor2_speed = y_mapped - x_mapped;
 
-        // Ajusta os valores para ficarem na faixa de 0 a 255
         uint8_t motor1_pwm = (motor1_speed > 0) ? motor1_speed : -motor1_speed;
         uint8_t motor2_pwm = (motor2_speed > 0) ? motor2_speed : -motor2_speed;
 
-        // Define a direção dos motores
         motor_control(1, (motor1_speed >= 0) ? 1 : 2, motor1_pwm);
         motor_control(2, (motor2_speed >= 0) ? 1 : 2, motor2_pwm);
     }
-
     return 0;
 }
 
@@ -206,4 +208,54 @@ ISR(PCINT0_vect)
     {
         ligaLED();
     }
+}
+
+void verificarSensor(void)
+{
+    // Configura o pino do sensor como entrada
+    DDRD &= ~(1 << PD3); // PD3 como entrada
+
+    // Verifica se o sensor detecta o laser (exemplo: sensor ativo em LOW)
+    if (!(PIND & (1 << PD3))) 
+    {
+        _delay_ms(50); // Debounce para evitar múltiplas detecções
+        if (!(PIND & (1 << PD3))) 
+        {
+            atualizarVidas(); // Atualiza as vidas e apaga o LED correspondente
+        }
+    }
+}
+
+void atualizarVidas(void)
+{
+    if (vidas > 0)
+    {
+        if (vidas == 3)
+        {
+            PORTB &= ~(1 << LED3); // Apaga o LED3
+        }
+        else if (vidas == 2)
+        {
+            PORTD &= ~(1 << LED2); // Apaga o LED2
+        }
+        else if (vidas == 1)
+        {
+            PORTD &= ~(1 << LED1); // Apaga o LED1
+        }
+
+        vidas--; // Reduz uma vida
+        girar180(); // Faz o robô girar 180°
+    }
+}
+
+void girar180(void)
+{
+    // Motores girando em direções opostas para virar
+    motor_control(1, 1, 255); // Motor 1 para frente
+    motor_control(2, 2, 255); // Motor 2 para trás
+    _delay_ms(1000); // Ajustar tempo conforme necessário para 180°
+
+    // Para os motores após o giro
+    motor_control(1, 0, 0);
+    motor_control(2, 0, 0);
 }
