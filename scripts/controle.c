@@ -138,7 +138,7 @@ void motor_control(uint8_t motor, uint8_t direction, uint8_t speed)
         { // Parado
             PORTB &= ~((1 << MOTOR1_DIR1_PIN) | (1 << MOTOR1_DIR2_PIN));
         }
-        OCR0A = speed; // Ajusta o PWM do Motor 1
+        OCR0B = speed; // Ajusta o PWM do Motor 1
     }
     else if (motor == 2)
     { // Motor 2
@@ -156,7 +156,7 @@ void motor_control(uint8_t motor, uint8_t direction, uint8_t speed)
         { // Parado
             PORTB &= ~((1 << MOTOR2_DIR1_PIN) | (1 << MOTOR2_DIR2_PIN));
         }
-        OCR0B = speed; // Ajusta o PWM do Motor 2
+        OCR0A = speed; // Ajusta o PWM do Motor 2
     }
 }
 
