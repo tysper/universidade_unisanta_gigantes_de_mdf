@@ -30,6 +30,7 @@ void atualizarVidas(void);
 void girar180(void);
 
 volatile uint8_t vidas = 3;        //Variável das vidas
+volatile uint32_t ultimo_evento = 0; // Timestamp do último evento (para debounce)
 volatile uint16_t total_ovf; // variável para contar os overflows para ligar o laser
 void timer2_init_laser(void);
 void ligaLED(void);
@@ -47,6 +48,11 @@ int main(void)
     // Configuração inicial dos motores
     motor_control(1, 0, 0); // Motor 1 parado
     motor_control(2, 0, 0); // Motor 2 parado
+
+    // Configuração de interrupção externa para o sensor
+    EICRA |= (1 << ISC01); // Interrupção em borda de descida
+    EIMSK |= (1 << INT0);  // Habilita INT0
+    sei();                 // Habilita interrupções globais
 
     uint8_t joystick_x = 127; // Posição neutra no eixo X
     uint8_t joystick_y = 127; // Posição neutra no eixo Y
@@ -212,16 +218,13 @@ ISR(PCINT0_vect)
 
 void verificarSensor(void)
 {
-    // Configura o pino do sensor como entrada
-    DDRD &= ~(1 << PD3); // PD3 como entrada
-
-    // Verifica se o sensor detecta o laser (exemplo: sensor ativo em LOW)
-    if (!(PIND & (1 << PD3))) 
+    if (!(PIND & (1 << PD3)))
     {
-        _delay_ms(50); // Debounce para evitar múltiplas detecções
-        if (!(PIND & (1 << PD3))) 
+        uint32_t tempo_atual = millis(); // Função fictícia para o exemplo
+        if (tempo_atual - ultimo_evento > 200) // Debounce de 200ms
         {
-            atualizarVidas(); // Atualiza as vidas e apaga o LED correspondente
+            ultimo_evento = tempo_atual;
+            atualizarVidas();
         }
     }
 }
@@ -230,6 +233,8 @@ void atualizarVidas(void)
 {
     if (vidas > 0)
     {
+        if (vidas > 0)
+        {
         if (vidas == 3)
         {
             PORTB &= ~(1 << LED3); // Apaga o LED3
@@ -242,7 +247,6 @@ void atualizarVidas(void)
         {
             PORTD &= ~(1 << LED1); // Apaga o LED1
         }
-
         vidas--; // Reduz uma vida
         girar180(); // Faz o robô girar 180°
     }
@@ -250,12 +254,12 @@ void atualizarVidas(void)
 
 void girar180(void)
 {
-    // Motores girando em direções opostas para virar
-    motor_control(1, 1, 255); // Motor 1 para frente
-    motor_control(2, 2, 255); // Motor 2 para trás
-    _delay_ms(1000); // Ajustar tempo conforme necessário para 180°
-
-    // Para os motores após o giro
-    motor_control(1, 0, 0);
-    motor_control(2, 0, 0);
+    for (uint8_t i = 0; i < 5; i++) // Pequenos giros em 5 etapas
+    {
+        motor_control(1, 1, 255); // Motor 1 para frente
+        motor_control(2, 2, 255); // Motor 2 para trás
+        _delay_ms(200); // Pequenos intervalos de movimento
+    }
+    motor_control(1, 0, 0); // Para motor 1
+    motor_control(2, 0, 0); // Para motor 2
 }
