@@ -3,14 +3,15 @@
 #include <avr/interrupt.h>
 
 // Definições para os pinos PWM
-#define PWM1_PIN PD6 // Motor 1 (OC0A)
-#define PWM2_PIN PD5 // Motor 2 (OC0B)
+#define PWM1_PIN PD5 // Motor 1 (OC0A)
+#define PWM2_PIN PD6 // Motor 2 (OC0B)
 
 // Definições de controle dos motores
-#define MOTOR1_DIR1_PIN PB0 // Direção Motor 1
-#define MOTOR1_DIR2_PIN PB1 // Direção Motor 1
-#define MOTOR2_DIR1_PIN PB2 // Direção Motor 2
-#define MOTOR2_DIR2_PIN PB3 // Direção Motor 2
+#define MOTOR1_DIR1_PIN PD7 // Direção Motor 1
+#define MOTOR1_DIR2_PIN PB0 // Direção Motor 1
+#define MOTOR2_DIR1_PIN PB3 // Direção Motor 2
+#define MOTOR2_DIR2_PIN PB4 // Direção Motor 2
+
 // definições pinos LEDs, Botão e Laser
 #define LED1 PD2
 #define LED2 PD4
@@ -24,6 +25,7 @@ char UART_receive(void);
 void PWM_init(void);
 void motor_control(uint8_t motor, uint8_t direction, uint8_t speed);
 int8_t map_joystick_value(uint8_t value);
+
 volatile uint16_t total_ovf; // variável para contar os overflows para ligar o laser
 void timer2_init_laser(void);
 void ligaLED(void);
@@ -89,8 +91,7 @@ void UART_init(uint16_t baud)
 // Recepção de um caractere pela UART
 char UART_receive(void)
 {
-    while (!(UCSR0A & (1 << RXC0)))
-        ;        // Aguarda até receber o dado
+    while (!(UCSR0A & (1 << RXC0))); // Aguarda até receber o dado
     return UDR0; // Retorna o dado recebido
 }
 
@@ -164,6 +165,7 @@ int8_t map_joystick_value(uint8_t value)
 {
     return ((int16_t)value - 127) * 100 / 127;
 }
+
 // Função que controla o Laser
 void timer2_init_laser()
 {
@@ -198,7 +200,6 @@ void pinosConfigurados()
     PCICR |= (1 << PCIE0);   // registrador PORTB
     PCMSK0 |= (1 << PCINT5); // pino PB5
 }
-
 ISR(PCINT0_vect)
 {
     if (!(PINB & (1 << BotaoLED)))
