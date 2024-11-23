@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.12.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gigantes de MDF: Main Page</title>
+<title>Gigantes de MDF: Página Inicial</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="logo.jpg"/></td>
   <td id="projectalign">
-   <div id="projectname">Gigantes de MDF<span id="projectnumber">&#160;early beta</span>
+   <div id="projectname">Gigantes de MDF<span id="projectnumber">&#160;versão final</span>
    </div>
    <div id="projectbrief">Projeto para testar os conhecimentos na matéria de programação de Hardware</div>
   </td>
@@ -86,9 +86,134 @@ $(function(){ initResizable(false); });
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">Gigantes de MDF Documentation</div></div>
+  <div class="headertitle"><div class="title">Documentação Gigantes de MDF</div></div>
 </div><!--header-->
 <div class="contents">
+  
+<div>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          margin: 0;
+          padding: 0;
+          background-color: #070b11;
+          color: #fff;
+      }
+      header, main, footer {
+          max-width: 800px;
+          margin: auto;
+          padding: 20px;
+      }
+      header {
+          text-align: center;
+          margin-top: 20px;
+      }
+      header img {
+          width: 200px;
+      }
+      h1, h2, h3 {
+          color: #fff;
+      }
+      ul {
+          padding-left: 20px;
+      }
+      .milestone {
+          margin: 20px 0;
+          padding: 10px;
+          background-color: #101824;
+          border: 1px solid #070b11;
+          border-radius: 5px;
+      }
+      .milestone.completed {
+          border-left: 5px solid green;
+      }
+      .milestone.pending {
+          border-left: 5px solid orange;
+      }
+  </style>
+  <main>
+      <section>
+          <h2>Introdução</h2>
+          <p>
+              Este projeto integra os conhecimentos adquiridos na disciplina de Programação de Hardware do curso de Engenharia. Ele tem como objetivo principal o desenvolvimento de um robô funcional, com foco na programação do microcontrolador <strong>ATMega328(p)(PB)</strong>, utilizando periféricos como <strong>PWM</strong> e timers, além da implementação de um circuito eletrônico completo. A abordagem do projeto prioriza o aprendizado prático e evita o uso de soluções pré-prontas, garantindo que os participantes desenvolvam competências fundamentais na área.
+          </p>
+      </section>
+
+      <section>
+          <h2>Objetivo do Projeto</h2>
+          <ul>
+              <li>Movimentar-se autonomamente utilizando motores controlados via PWM.</li>
+              <li>Operar uma "arma laser" que dispara feixes de luz vermelha por 1 segundo, controlada por temporizadores.</li>
+              <li>Detectar impactos de laser recebidos e reagir com ações programadas, como giros no eixo e decremento de LEDs que indicam "vidas".</li>
+              <li>Integrar todos os componentes eletrônicos, incluindo sensores, LEDs e botões, em um circuito projetado manualmente.</li>
+          </ul>
+      </section>
+
+      <section>
+          <h2>Requisitos Técnicos</h2>
+          <h3>Mecânica</h3>
+          <ul>
+              <li>Estrutura com dimensões máximas de <strong>200x200x200 mm</strong>.</li>
+              <li>Sistema de movimentação em 4, 3 ou 2 rodas, permitindo rotações no próprio eixo.</li>
+              <li>"Arma laser" centralizada e receptor de luz posicionado lateralmente.</li>
+          </ul>
+
+          <h3>Eletrônica</h3>
+          <ul>
+              <li>Circuitos para controle de motores projetados manualmente (sem shields prontos).</li>
+              <li>Laser com potência máxima de <strong>300 mW</strong> e receptor de luz com difusor de 20 mm.</li>
+              <li>LEDs indicativos para "vidas", com controle de estado por GPIO e um botão para reset.</li>
+          </ul>
+
+          <h3>Programação</h3>
+          <ul>
+              <li>Uso obrigatório de timers para controle do laser.</li>
+              <li>Interrupções para funcionalidade do botão de reset.</li>
+              <li>Controle dos motores baseado em PWM.</li>
+              <li>Reação programada ao impacto de laser: desativação temporária do robô e decremento de LEDs.</li>
+          </ul>
+      </section>
+
+      <section>
+          <h2>Estrutura de Desenvolvimento</h2>
+          <div class="milestone completed">
+              <h3>1. Protótipo Funcional - 5 de outubro de 2024 ✅</h3>
+              <p>O protótipo inicial do robô foi concluído, com movimentação básica utilizando os motores conectados a baterias. A estrutura mecânica foi montada conforme as especificações e demonstrada com sucesso.</p>
+          </div>
+          <div class="milestone completed">
+              <h3>2. Circuito Eletrônico e Funcionalidades Básicas - 31 de outubro de 2024 ✅</h3>
+              <p>O circuito eletrônico foi projetado e integrado ao microcontrolador <strong>ATMega328(p)(PB)</strong>. Todas as funcionalidades básicas, incluindo controle dos motores, operação da "arma laser" e detecção do alvo foram implementadas, mas houveram alguns problemas que impediram a apresentação ao professor.</p>
+          </div>
+          <div class="milestone pending">
+              <h3>3. Apresentação Final - 23 de novembro de 2024 ⚠️</h3>
+              <p>Preparação em andamento para a apresentação final.</p>
+          </div>
+      </section>
+
+      <section>
+          <h2>Ferramentas e Requisitos Adicionais</h2>
+          <ul>
+              <li>O código fonte foi desenvolvido exclusivamente, sem o uso de bibliotecas prontas, exceto aquelas previamente aprovadas pelo professor.</li>
+              <li>
+                  A documentação do software foi elaborada utilizando a ferramenta <strong>Doxygen</strong>. 
+                  Consulte no link: 
+                  <a href="https://tysper.github.io/universidade_unisanta_gigantes_de_mdf/scripts/documentacao/html/index.html">Documentação - Gigantes de MDF</a>.
+              </li>
+              <li>O repositório contém todos os arquivos do projeto, incluindo esquemas eletrônicos, código-fonte e documentação detalhada.</li>
+          </ul>
+      </section>
+
+      <section>
+          <h2>Avaliação</h2>
+          <ul>
+              <li>Conformidade com os requisitos técnicos e funcionais.</li>
+              <li>Qualidade e organização do código-fonte.</li>
+              <li>Apresentação e documentação do projeto.</li>
+          </ul>
+      </section>
+  </main>
+</div>
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->
 <!-- start footer part -->
