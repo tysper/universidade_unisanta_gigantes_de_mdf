@@ -47,7 +47,7 @@ O circuito eletrônico foi projetado e integrado ao microcontrolador **ATMega328
 
 ## Ferramentas e Requisitos Adicionais
 - O código fonte foi desenvolvido exclusivamente, sem o uso de bibliotecas prontas, exceto aquelas previamente aprovadas pelo professor.
-- A documentação do software foi elaborada utilizando a ferramenta **Doxygen**.
+- A documentação do software foi elaborada utilizando a ferramenta **Doxygen**. E pode ser consultada no link: <a href="https://tysper.github.io/universidade_unisanta_gigantes_de_mdf/scripts/documentacao/html/index.html">Documentação - Gigantes de MDF</a>
 - O repositório contém todos os arquivos do projeto, incluindo esquemas eletrônicos, código-fonte e documentação detalhada.
 
 ## Avaliação
