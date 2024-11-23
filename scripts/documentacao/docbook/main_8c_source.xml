@@ -1,0 +1,310 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_main_8c_source" xml:lang="pt-BR">
+<title>main.c</title>
+<programlisting linenumbering="unnumbered"><anchor xml:id="_main_8c_source_1l00001"/>00001 <emphasis role="preprocessor">#include&#32;&lt;avr/io.h&gt;</emphasis>
+<anchor xml:id="_main_8c_source_1l00002"/>00002 <emphasis role="preprocessor">#include&#32;&lt;avr/interrupt.h&gt;</emphasis>
+<anchor xml:id="_main_8c_source_1l00003"/>00003 
+<anchor xml:id="_main_8c_source_1l00007"/>00007 <emphasis role="preprocessor">#define&#32;led1_pin&#32;PD2</emphasis>
+<anchor xml:id="_main_8c_source_1l00008"/>00008 <emphasis role="preprocessor">#define&#32;led2_pin&#32;PD4</emphasis>
+<anchor xml:id="_main_8c_source_1l00009"/>00009 <emphasis role="preprocessor">#define&#32;led3_pin&#32;PB2</emphasis>
+<anchor xml:id="_main_8c_source_1l00010"/>00010 <emphasis role="preprocessor">#define&#32;laser_pin&#32;PD3</emphasis>
+<anchor xml:id="_main_8c_source_1l00011"/>00011 <emphasis role="preprocessor">#define&#32;sensor_pin&#32;PC0</emphasis>
+<anchor xml:id="_main_8c_source_1l00012"/>00012 <emphasis role="preprocessor">#define&#32;motor_esquerdo&#32;PD5</emphasis>
+<anchor xml:id="_main_8c_source_1l00013"/>00013 <emphasis role="preprocessor">#define&#32;motor_direito&#32;PD6</emphasis>
+<anchor xml:id="_main_8c_source_1l00014"/>00014 <emphasis role="preprocessor">#define&#32;esquerdo_frente&#32;PB0</emphasis>
+<anchor xml:id="_main_8c_source_1l00015"/>00015 <emphasis role="preprocessor">#define&#32;esquerdo_traz&#32;PD7</emphasis>
+<anchor xml:id="_main_8c_source_1l00016"/>00016 <emphasis role="preprocessor">#define&#32;direito_frente&#32;PB4</emphasis>
+<anchor xml:id="_main_8c_source_1l00017"/>00017 <emphasis role="preprocessor">#define&#32;direito_traz&#32;PB3</emphasis>
+<anchor xml:id="_main_8c_source_1l00018"/>00018 
+<anchor xml:id="_main_8c_source_1l00022"/>00022 <emphasis role="keyword">volatile</emphasis>&#32;uint16_t&#32;total_ovf0;
+<anchor xml:id="_main_8c_source_1l00023"/>00023 <emphasis role="keyword">volatile</emphasis>&#32;uint16_t&#32;total_ovf1;
+<anchor xml:id="_main_8c_source_1l00024"/>00024 <emphasis role="keyword">volatile</emphasis>&#32;uint16_t&#32;total_ovf2;
+<anchor xml:id="_main_8c_source_1l00025"/>00025 <emphasis role="keyword">volatile</emphasis>&#32;<emphasis role="keywordtype">bool</emphasis>&#32;estado_laser&#32;=&#32;<emphasis role="keyword">true</emphasis>;
+<anchor xml:id="_main_8c_source_1l00026"/>00026 
+<anchor xml:id="_main_8c_source_1l00028"/>00028 <emphasis role="keyword">volatile</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;quantidade_vidas&#32;=&#32;3;
+<anchor xml:id="_main_8c_source_1l00029"/>00029 <emphasis role="keyword">volatile</emphasis>&#32;<emphasis role="keywordtype">bool</emphasis>&#32;jogo_acabou&#32;=&#32;<emphasis role="keyword">false</emphasis>;
+<anchor xml:id="_main_8c_source_1l00030"/>00030 <emphasis role="keyword">volatile</emphasis>&#32;<emphasis role="keywordtype">bool</emphasis>&#32;atingido&#32;=&#32;<emphasis role="keyword">false</emphasis>;
+<anchor xml:id="_main_8c_source_1l00031"/>00031 
+<anchor xml:id="_main_8c_source_1l00033"/>00033 <emphasis role="keyword">volatile</emphasis>&#32;<emphasis role="keywordtype">bool</emphasis>&#32;motor_ativado&#32;=&#32;<emphasis role="keyword">true</emphasis>;
+<anchor xml:id="_main_8c_source_1l00034"/>00034 <emphasis role="keyword">volatile</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;velocidade_porcentagem&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00035"/>00035 
+<anchor xml:id="_main_8c_source_1l00039"/>00039 <emphasis role="keywordtype">void</emphasis>&#32;atualizar_vidas(<emphasis role="keywordtype">int</emphasis>&#32;numero_de_vidas)
+<anchor xml:id="_main_8c_source_1l00040"/>00040 {
+<anchor xml:id="_main_8c_source_1l00041"/>00041 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>(numero_de_vidas)
+<anchor xml:id="_main_8c_source_1l00042"/>00042 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00043"/>00043 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;0:
+<anchor xml:id="_main_8c_source_1l00044"/>00044 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00045"/>00045 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00046"/>00046 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00047"/>00047 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;1:
+<anchor xml:id="_main_8c_source_1l00048"/>00048 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;led1_pin);
+<anchor xml:id="_main_8c_source_1l00049"/>00049 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;led2_pin);
+<anchor xml:id="_main_8c_source_1l00050"/>00050 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;led3_pin);
+<anchor xml:id="_main_8c_source_1l00051"/>00051 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00052"/>00052 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;2:
+<anchor xml:id="_main_8c_source_1l00053"/>00053 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;led1_pin);
+<anchor xml:id="_main_8c_source_1l00054"/>00054 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;led2_pin);
+<anchor xml:id="_main_8c_source_1l00055"/>00055 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;led3_pin);
+<anchor xml:id="_main_8c_source_1l00056"/>00056 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00057"/>00057 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;3:
+<anchor xml:id="_main_8c_source_1l00058"/>00058 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;led1_pin);
+<anchor xml:id="_main_8c_source_1l00059"/>00059 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;led2_pin);
+<anchor xml:id="_main_8c_source_1l00060"/>00060 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;led3_pin);
+<anchor xml:id="_main_8c_source_1l00061"/>00061 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00062"/>00062 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00063"/>00063 }
+<anchor xml:id="_main_8c_source_1l00064"/>00064 
+<anchor xml:id="_main_8c_source_1l00068"/>00068 <emphasis role="keywordtype">void</emphasis>&#32;alternar_laser()
+<anchor xml:id="_main_8c_source_1l00069"/>00069 {
+<anchor xml:id="_main_8c_source_1l00070"/>00070 &#32;&#32;&#32;&#32;PORTD&#32;^=&#32;(1&#32;&lt;&lt;&#32;laser_pin);
+<anchor xml:id="_main_8c_source_1l00071"/>00071 }
+<anchor xml:id="_main_8c_source_1l00072"/>00072 
+<anchor xml:id="_main_8c_source_1l00076"/>00076 <emphasis role="keywordtype">void</emphasis>&#32;atualizar_estado_laser(<emphasis role="keywordtype">bool</emphasis>&#32;estado)
+<anchor xml:id="_main_8c_source_1l00077"/>00077 {
+<anchor xml:id="_main_8c_source_1l00078"/>00078 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(estado)
+<anchor xml:id="_main_8c_source_1l00079"/>00079 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00080"/>00080 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;laser_pin);
+<anchor xml:id="_main_8c_source_1l00081"/>00081 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00082"/>00082 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;
+<anchor xml:id="_main_8c_source_1l00083"/>00083 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00084"/>00084 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;laser_pin);
+<anchor xml:id="_main_8c_source_1l00085"/>00085 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00086"/>00086 }
+<anchor xml:id="_main_8c_source_1l00087"/>00087 
+<anchor xml:id="_main_8c_source_1l00088"/>00088 
+<anchor xml:id="_main_8c_source_1l00092"/>00092 <emphasis role="keywordtype">void</emphasis>&#32;timer1_init_delay()
+<anchor xml:id="_main_8c_source_1l00093"/>00093 {
+<anchor xml:id="_main_8c_source_1l00094"/>00094 &#32;&#32;&#32;&#32;TCCR1B&#32;|=&#32;((1&#32;&lt;&lt;&#32;CS10)&#32;|&#32;(1&#32;&lt;&lt;&#32;CS11));
+<anchor xml:id="_main_8c_source_1l00095"/>00095 
+<anchor xml:id="_main_8c_source_1l00096"/>00096 &#32;&#32;&#32;&#32;TCNT1&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00097"/>00097 
+<anchor xml:id="_main_8c_source_1l00098"/>00098 &#32;&#32;&#32;&#32;total_ovf1&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00099"/>00099 }
+<anchor xml:id="_main_8c_source_1l00100"/>00100 
+<anchor xml:id="_main_8c_source_1l00104"/>00104 ISR(TIMER1_OVF_vect)
+<anchor xml:id="_main_8c_source_1l00105"/>00105 {
+<anchor xml:id="_main_8c_source_1l00106"/>00106 &#32;&#32;&#32;&#32;total_ovf1++;
+<anchor xml:id="_main_8c_source_1l00107"/>00107 }
+<anchor xml:id="_main_8c_source_1l00108"/>00108 
+<anchor xml:id="_main_8c_source_1l00112"/>00112 <emphasis role="keywordtype">void</emphasis>&#32;atraso_segundos(uint16_t&#32;segundos)
+<anchor xml:id="_main_8c_source_1l00113"/>00113 {
+<anchor xml:id="_main_8c_source_1l00114"/>00114 &#32;&#32;&#32;&#32;TIMSK1&#32;|=&#32;(1&#32;&lt;&lt;&#32;TOIE1);
+<anchor xml:id="_main_8c_source_1l00115"/>00115 
+<anchor xml:id="_main_8c_source_1l00116"/>00116 &#32;&#32;&#32;&#32;total_ovf1&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00117"/>00117 &#32;&#32;&#32;&#32;uint16_t&#32;ovf_totais&#32;=&#32;segundos&#32;*&#32;4;
+<anchor xml:id="_main_8c_source_1l00118"/>00118 &#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00119"/>00119 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>(total_ovf1&#32;&lt;&#32;ovf_totais)
+<anchor xml:id="_main_8c_source_1l00120"/>00120 &#32;&#32;&#32;&#32;{}
+<anchor xml:id="_main_8c_source_1l00121"/>00121 
+<anchor xml:id="_main_8c_source_1l00122"/>00122 &#32;&#32;&#32;&#32;TIMSK1&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;TOIE1);
+<anchor xml:id="_main_8c_source_1l00123"/>00123 }
+<anchor xml:id="_main_8c_source_1l00124"/>00124 
+<anchor xml:id="_main_8c_source_1l00128"/>00128 <emphasis role="keywordtype">void</emphasis>&#32;timer0_init_pwm()
+<anchor xml:id="_main_8c_source_1l00129"/>00129 {
+<anchor xml:id="_main_8c_source_1l00130"/>00130 &#32;&#32;&#32;&#32;TCCR0A&#32;|=&#32;((1&#32;&lt;&lt;&#32;COM0A1)&#32;|&#32;(1&#32;&lt;&lt;&#32;WGM00)&#32;|&#32;(1&#32;&lt;&lt;&#32;WGM01)&#32;|&#32;(1&#32;&lt;&lt;&#32;COM0B1));
+<anchor xml:id="_main_8c_source_1l00131"/>00131 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00132"/>00132 &#32;&#32;&#32;&#32;TCCR0B&#32;|=&#32;(1&#32;&lt;&lt;&#32;CS00);
+<anchor xml:id="_main_8c_source_1l00133"/>00133 }
+<anchor xml:id="_main_8c_source_1l00134"/>00134 
+<anchor xml:id="_main_8c_source_1l00138"/>00138 <emphasis role="keywordtype">void</emphasis>&#32;atualizar_direcao(<emphasis role="keywordtype">char</emphasis>&#32;direcao)
+<anchor xml:id="_main_8c_source_1l00139"/>00139 {
+<anchor xml:id="_main_8c_source_1l00140"/>00140 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(direcao&#32;!=&#32;<emphasis role="charliteral">&apos;s&apos;</emphasis>)
+<anchor xml:id="_main_8c_source_1l00141"/>00141 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00142"/>00142 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;OCR0B&#32;=&#32;254;
+<anchor xml:id="_main_8c_source_1l00143"/>00143 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;OCR0A&#32;=&#32;254;
+<anchor xml:id="_main_8c_source_1l00144"/>00144 &#32;&#32;&#32;&#32;}&#32;
+<anchor xml:id="_main_8c_source_1l00145"/>00145 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;
+<anchor xml:id="_main_8c_source_1l00146"/>00146 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00147"/>00147 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;OCR0B&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00148"/>00148 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;OCR0A&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00149"/>00149 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00150"/>00150 
+<anchor xml:id="_main_8c_source_1l00151"/>00151 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(direcao)
+<anchor xml:id="_main_8c_source_1l00152"/>00152 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00153"/>00153 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;u&apos;</emphasis>:
+<anchor xml:id="_main_8c_source_1l00154"/>00154 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;esquerdo_frente);
+<anchor xml:id="_main_8c_source_1l00155"/>00155 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_traz);
+<anchor xml:id="_main_8c_source_1l00156"/>00156 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;direito_frente);
+<anchor xml:id="_main_8c_source_1l00157"/>00157 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_traz);
+<anchor xml:id="_main_8c_source_1l00158"/>00158 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00159"/>00159 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;d&apos;</emphasis>:
+<anchor xml:id="_main_8c_source_1l00160"/>00160 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_frente);
+<anchor xml:id="_main_8c_source_1l00161"/>00161 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;|=&#32;(1&#32;&lt;&lt;&#32;esquerdo_traz);
+<anchor xml:id="_main_8c_source_1l00162"/>00162 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_frente);
+<anchor xml:id="_main_8c_source_1l00163"/>00163 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;direito_traz);
+<anchor xml:id="_main_8c_source_1l00164"/>00164 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00165"/>00165 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>:
+<anchor xml:id="_main_8c_source_1l00166"/>00166 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_frente);
+<anchor xml:id="_main_8c_source_1l00167"/>00167 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_traz);
+<anchor xml:id="_main_8c_source_1l00168"/>00168 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;direito_frente);
+<anchor xml:id="_main_8c_source_1l00169"/>00169 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_traz);
+<anchor xml:id="_main_8c_source_1l00170"/>00170 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00171"/>00171 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;r&apos;</emphasis>:
+<anchor xml:id="_main_8c_source_1l00172"/>00172 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;esquerdo_frente);
+<anchor xml:id="_main_8c_source_1l00173"/>00173 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_traz);
+<anchor xml:id="_main_8c_source_1l00174"/>00174 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_frente);
+<anchor xml:id="_main_8c_source_1l00175"/>00175 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_traz);
+<anchor xml:id="_main_8c_source_1l00176"/>00176 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00177"/>00177 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;t&apos;</emphasis>:
+<anchor xml:id="_main_8c_source_1l00178"/>00178 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;esquerdo_frente);
+<anchor xml:id="_main_8c_source_1l00179"/>00179 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_traz);
+<anchor xml:id="_main_8c_source_1l00180"/>00180 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_frente);
+<anchor xml:id="_main_8c_source_1l00181"/>00181 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;|=&#32;(1&#32;&lt;&lt;&#32;direito_traz);
+<anchor xml:id="_main_8c_source_1l00182"/>00182 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00183"/>00183 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;s&apos;</emphasis>:
+<anchor xml:id="_main_8c_source_1l00184"/>00184 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_frente);
+<anchor xml:id="_main_8c_source_1l00185"/>00185 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTD&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;esquerdo_traz);
+<anchor xml:id="_main_8c_source_1l00186"/>00186 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_frente);
+<anchor xml:id="_main_8c_source_1l00187"/>00187 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;PORTB&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;direito_traz);
+<anchor xml:id="_main_8c_source_1l00188"/>00188 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+<anchor xml:id="_main_8c_source_1l00189"/>00189 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00190"/>00190 }
+<anchor xml:id="_main_8c_source_1l00191"/>00191 
+<anchor xml:id="_main_8c_source_1l00195"/>00195 <emphasis role="keywordtype">void</emphasis>&#32;timer2_init_laser()
+<anchor xml:id="_main_8c_source_1l00196"/>00196 {
+<anchor xml:id="_main_8c_source_1l00197"/>00197 &#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00198"/>00198 &#32;&#32;&#32;&#32;TCCR2B&#32;|=&#32;(1&lt;&lt;CS21)&#32;|&#32;(1&lt;&lt;&#32;CS22)&#32;|&#32;(1&lt;&lt;CS20);
+<anchor xml:id="_main_8c_source_1l00199"/>00199 &#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00200"/>00200 &#32;&#32;&#32;&#32;TCNT2&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00201"/>00201 &#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00202"/>00202 &#32;&#32;&#32;&#32;TIMSK2&#32;|=&#32;(1&#32;&lt;&lt;TOIE2);
+<anchor xml:id="_main_8c_source_1l00203"/>00203 
+<anchor xml:id="_main_8c_source_1l00204"/>00204 &#32;&#32;&#32;&#32;total_ovf2&#32;=&#32;0;
+<anchor xml:id="_main_8c_source_1l00205"/>00205 }
+<anchor xml:id="_main_8c_source_1l00206"/>00206 
+<anchor xml:id="_main_8c_source_1l00210"/>00210 ISR(TIMER2_OVF_vect)
+<anchor xml:id="_main_8c_source_1l00211"/>00211 {
+<anchor xml:id="_main_8c_source_1l00212"/>00212 &#32;&#32;&#32;&#32;total_ovf2++;
+<anchor xml:id="_main_8c_source_1l00213"/>00213 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;16Mhz/1024&#32;=&#32;64us-&gt;&#32;256*64us&#32;=&#32;16,384ms&#32;-&gt;&#32;1/16,384ms&#32;=&#32;61</emphasis>
+<anchor xml:id="_main_8c_source_1l00214"/>00214 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(total_ovf2&#32;&gt;=&#32;61)
+<anchor xml:id="_main_8c_source_1l00215"/>00215 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00216"/>00216 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(estado_laser&#32;&amp;&#32;!jogo_acabou)
+<anchor xml:id="_main_8c_source_1l00217"/>00217 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00218"/>00218 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;alternar_laser();
+<anchor xml:id="_main_8c_source_1l00219"/>00219 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+<anchor xml:id="_main_8c_source_1l00220"/>00220 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atualizar_estado_laser(<emphasis role="keyword">false</emphasis>);
+<anchor xml:id="_main_8c_source_1l00221"/>00221 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00222"/>00222 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;total_ovf2&#32;=&#32;0;&#32;
+<anchor xml:id="_main_8c_source_1l00223"/>00223 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00224"/>00224 }
+<anchor xml:id="_main_8c_source_1l00225"/>00225 
+<anchor xml:id="_main_8c_source_1l00229"/>00229 <emphasis role="keywordtype">void</emphasis>&#32;comecar_adc_conversao()
+<anchor xml:id="_main_8c_source_1l00230"/>00230 {
+<anchor xml:id="_main_8c_source_1l00231"/>00231 &#32;&#32;&#32;&#32;ADCSRA&#32;|=&#32;(1&#32;&lt;&lt;&#32;ADSC);
+<anchor xml:id="_main_8c_source_1l00232"/>00232 }
+<anchor xml:id="_main_8c_source_1l00233"/>00233 
+<anchor xml:id="_main_8c_source_1l00234"/>00234 <emphasis role="keywordtype">void</emphasis>&#32;desligar_adc()
+<anchor xml:id="_main_8c_source_1l00235"/>00235 {
+<anchor xml:id="_main_8c_source_1l00236"/>00236 &#32;&#32;&#32;&#32;ADCSRA&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;ADIE);
+<anchor xml:id="_main_8c_source_1l00237"/>00237 }
+<anchor xml:id="_main_8c_source_1l00238"/>00238 
+<anchor xml:id="_main_8c_source_1l00239"/>00239 <emphasis role="keywordtype">void</emphasis>&#32;religar_adc()
+<anchor xml:id="_main_8c_source_1l00240"/>00240 {
+<anchor xml:id="_main_8c_source_1l00241"/>00241 &#32;&#32;&#32;&#32;ADCSRA&#32;|=&#32;(1&#32;&lt;&lt;&#32;ADIE);
+<anchor xml:id="_main_8c_source_1l00242"/>00242 &#32;&#32;&#32;&#32;comecar_adc_conversao();
+<anchor xml:id="_main_8c_source_1l00243"/>00243 }
+<anchor xml:id="_main_8c_source_1l00244"/>00244 
+<anchor xml:id="_main_8c_source_1l00245"/>00245 <emphasis role="keywordtype">void</emphasis>&#32;adc_init()
+<anchor xml:id="_main_8c_source_1l00246"/>00246 {
+<anchor xml:id="_main_8c_source_1l00247"/>00247 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;limpa&#32;o&#32;registro&#32;do&#32;registro&#32;de&#32;redução&#32;de&#32;energia&#32;para&#32;ativar&#32;o&#32;adc</emphasis>
+<anchor xml:id="_main_8c_source_1l00248"/>00248 &#32;&#32;&#32;&#32;PRR&#32;&amp;=&#32;~(1&#32;&lt;&lt;&#32;PRADC);
+<anchor xml:id="_main_8c_source_1l00249"/>00249 
+<anchor xml:id="_main_8c_source_1l00250"/>00250 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;registro&#32;admux&#32;para&#32;configurar&#32;a&#32;tensão&#32;de&#32;referencia</emphasis>
+<anchor xml:id="_main_8c_source_1l00251"/>00251 &#32;&#32;&#32;&#32;ADMUX&#32;|=&#32;(1&#32;&lt;&lt;&#32;REFS0);
+<anchor xml:id="_main_8c_source_1l00252"/>00252 
+<anchor xml:id="_main_8c_source_1l00253"/>00253 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;definindo&#32;que&#32;queremos&#32;utilizar&#32;o&#32;pino&#32;PC0&#32;→&#32;ADC0</emphasis>
+<anchor xml:id="_main_8c_source_1l00254"/>00254 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;como&#32;é&#32;0000&#32;não&#32;precisamos&#32;definir&#32;nada</emphasis>
+<anchor xml:id="_main_8c_source_1l00255"/>00255 
+<anchor xml:id="_main_8c_source_1l00256"/>00256 &#32;&#32;&#32;&#32;<emphasis role="comment">//ativando&#32;o&#32;ADC</emphasis>
+<anchor xml:id="_main_8c_source_1l00257"/>00257 &#32;&#32;&#32;&#32;ADCSRA&#32;|=&#32;((1&#32;&lt;&lt;&#32;ADEN)&#32;|&#32;(1&#32;&lt;&lt;&#32;ADIE));
+<anchor xml:id="_main_8c_source_1l00258"/>00258 
+<anchor xml:id="_main_8c_source_1l00259"/>00259 &#32;&#32;&#32;&#32;<emphasis role="comment">//definindo&#32;o&#32;prescaler&#32;para&#32;o&#32;adc&#32;ter&#32;a&#32;frequência&#32;de&#32;entrada&#32;correta&#32;(50Khz-200Khz)</emphasis>
+<anchor xml:id="_main_8c_source_1l00260"/>00260 &#32;&#32;&#32;&#32;ADCSRA&#32;|=&#32;((1&#32;&lt;&lt;&#32;ADPS0)&#32;|&#32;(1&#32;&lt;&lt;&#32;ADPS1)&#32;|&#32;(1&#32;&lt;&lt;&#32;ADPS2));
+<anchor xml:id="_main_8c_source_1l00261"/>00261 
+<anchor xml:id="_main_8c_source_1l00262"/>00262 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;desativando&#32;entrada&#32;digital&#32;para&#32;não&#32;afetar&#32;os&#32;valores</emphasis>
+<anchor xml:id="_main_8c_source_1l00263"/>00263 &#32;&#32;&#32;&#32;DIDR0&#32;|=&#32;(1&#32;&lt;&lt;&#32;ADC0D);
+<anchor xml:id="_main_8c_source_1l00264"/>00264 
+<anchor xml:id="_main_8c_source_1l00265"/>00265 &#32;&#32;&#32;&#32;comecar_adc_conversao();
+<anchor xml:id="_main_8c_source_1l00266"/>00266 }
+<anchor xml:id="_main_8c_source_1l00267"/>00267 
+<anchor xml:id="_main_8c_source_1l00268"/>00268 ISR(ADC_vect)
+<anchor xml:id="_main_8c_source_1l00269"/>00269 {
+<anchor xml:id="_main_8c_source_1l00270"/>00270 &#32;&#32;&#32;&#32;uint16_t&#32;valor&#32;=&#32;ADCL;
+<anchor xml:id="_main_8c_source_1l00271"/>00271 &#32;&#32;&#32;&#32;valor&#32;+=&#32;(ADCH&#32;&lt;&lt;&#32;8);
+<anchor xml:id="_main_8c_source_1l00272"/>00272 
+<anchor xml:id="_main_8c_source_1l00273"/>00273 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(valor&#32;&gt;&#32;70)
+<anchor xml:id="_main_8c_source_1l00274"/>00274 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00275"/>00275 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atingido&#32;=&#32;<emphasis role="keyword">true</emphasis>;
+<anchor xml:id="_main_8c_source_1l00276"/>00276 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;desligar_adc();
+<anchor xml:id="_main_8c_source_1l00277"/>00277 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00278"/>00278 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+<anchor xml:id="_main_8c_source_1l00279"/>00279 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atingido&#32;=&#32;<emphasis role="keyword">false</emphasis>;
+<anchor xml:id="_main_8c_source_1l00280"/>00280 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;comecar_adc_conversao();
+<anchor xml:id="_main_8c_source_1l00281"/>00281 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00282"/>00282 
+<anchor xml:id="_main_8c_source_1l00283"/>00283 }
+<anchor xml:id="_main_8c_source_1l00284"/>00284 
+<anchor xml:id="_main_8c_source_1l00285"/>00285 
+<anchor xml:id="_main_8c_source_1l00286"/>00286 <emphasis role="comment">//Configuração&#32;Inicial</emphasis>
+<anchor xml:id="_main_8c_source_1l00287"/>00287 <emphasis role="keywordtype">void</emphasis>&#32;setup_inicial()
+<anchor xml:id="_main_8c_source_1l00288"/>00288 {
+<anchor xml:id="_main_8c_source_1l00289"/>00289 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;habilitando&#32;interrupções</emphasis>
+<anchor xml:id="_main_8c_source_1l00290"/>00290 &#32;&#32;&#32;&#32;sei();
+<anchor xml:id="_main_8c_source_1l00291"/>00291 
+<anchor xml:id="_main_8c_source_1l00292"/>00292 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;configurando&#32;direção&#32;das&#32;portas</emphasis>
+<anchor xml:id="_main_8c_source_1l00293"/>00293 &#32;&#32;&#32;&#32;DDRB&#32;|=&#32;((1&#32;&lt;&lt;&#32;led3_pin)&#32;|&#32;(1&#32;&lt;&lt;&#32;direito_frente)&#32;|&#32;(1&#32;&lt;&lt;&#32;direito_traz)&#32;|&#32;(1&#32;&lt;&lt;&#32;esquerdo_frente));
+<anchor xml:id="_main_8c_source_1l00294"/>00294 &#32;&#32;&#32;&#32;DDRD&#32;|=&#32;((1&#32;&lt;&lt;&#32;led2_pin)&#32;|&#32;(1&#32;&lt;&lt;&#32;led1_pin)&#32;|&#32;(1&#32;&lt;&lt;&#32;laser_pin)&#32;|&#32;(1&#32;&lt;&lt;&#32;esquerdo_traz)&#32;|&#32;(1&#32;&lt;&lt;&#32;motor_esquerdo)&#32;|&#32;(1&#32;&lt;&lt;&#32;motor_direito));
+<anchor xml:id="_main_8c_source_1l00295"/>00295 &#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00296"/>00296 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;iniciando&#32;timers</emphasis>
+<anchor xml:id="_main_8c_source_1l00297"/>00297 &#32;&#32;&#32;&#32;timer2_init_laser();
+<anchor xml:id="_main_8c_source_1l00298"/>00298 &#32;&#32;&#32;&#32;timer1_init_delay();
+<anchor xml:id="_main_8c_source_1l00299"/>00299 &#32;&#32;&#32;&#32;timer0_init_pwm();
+<anchor xml:id="_main_8c_source_1l00300"/>00300 
+<anchor xml:id="_main_8c_source_1l00301"/>00301 &#32;&#32;&#32;&#32;<emphasis role="comment">//iniciando&#32;leds</emphasis>
+<anchor xml:id="_main_8c_source_1l00302"/>00302 &#32;&#32;&#32;&#32;atualizar_vidas(quantidade_vidas);
+<anchor xml:id="_main_8c_source_1l00303"/>00303 
+<anchor xml:id="_main_8c_source_1l00304"/>00304 &#32;&#32;&#32;&#32;<emphasis role="comment">//&#32;iniciando&#32;o&#32;adc</emphasis>
+<anchor xml:id="_main_8c_source_1l00305"/>00305 &#32;&#32;&#32;&#32;adc_init();
+<anchor xml:id="_main_8c_source_1l00306"/>00306 }
+<anchor xml:id="_main_8c_source_1l00307"/>00307 
+<anchor xml:id="_main_8c_source_1l00308"/>00308 <emphasis role="comment">//&#32;função&#32;principal</emphasis>
+<anchor xml:id="_main_8c_source_1l00309"/>00309 <emphasis role="keywordtype">int</emphasis>&#32;main()
+<anchor xml:id="_main_8c_source_1l00310"/>00310 {
+<anchor xml:id="_main_8c_source_1l00311"/>00311 &#32;&#32;&#32;&#32;setup_inicial();
+<anchor xml:id="_main_8c_source_1l00312"/>00312 
+<anchor xml:id="_main_8c_source_1l00313"/>00313 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>(1)
+<anchor xml:id="_main_8c_source_1l00314"/>00314 &#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00315"/>00315 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(atingido&#32;&amp;&#32;!jogo_acabou)
+<anchor xml:id="_main_8c_source_1l00316"/>00316 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00317"/>00317 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atingido&#32;=&#32;<emphasis role="keyword">false</emphasis>;
+<anchor xml:id="_main_8c_source_1l00318"/>00318 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;estado_laser&#32;=&#32;<emphasis role="keyword">false</emphasis>;
+<anchor xml:id="_main_8c_source_1l00319"/>00319 
+<anchor xml:id="_main_8c_source_1l00320"/>00320 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;quantidade_vidas--;
+<anchor xml:id="_main_8c_source_1l00321"/>00321 
+<anchor xml:id="_main_8c_source_1l00322"/>00322 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atualizar_vidas(quantidade_vidas);
+<anchor xml:id="_main_8c_source_1l00323"/>00323 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atualizar_estado_laser(<emphasis role="keyword">false</emphasis>);
+<anchor xml:id="_main_8c_source_1l00324"/>00324 
+<anchor xml:id="_main_8c_source_1l00325"/>00325 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(quantidade_vidas&#32;==&#32;0)
+<anchor xml:id="_main_8c_source_1l00326"/>00326 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00327"/>00327 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;jogo_acabou&#32;=&#32;<emphasis role="keyword">true</emphasis>;
+<anchor xml:id="_main_8c_source_1l00328"/>00328 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00329"/>00329 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+<anchor xml:id="_main_8c_source_1l00330"/>00330 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atualizar_direcao(<emphasis role="charliteral">&apos;t&apos;</emphasis>);
+<anchor xml:id="_main_8c_source_1l00331"/>00331 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atraso_segundos(1);
+<anchor xml:id="_main_8c_source_1l00332"/>00332 
+<anchor xml:id="_main_8c_source_1l00333"/>00333 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atualizar_direcao(<emphasis role="charliteral">&apos;s&apos;</emphasis>);
+<anchor xml:id="_main_8c_source_1l00334"/>00334 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;atraso_segundos(5);
+<anchor xml:id="_main_8c_source_1l00335"/>00335 
+<anchor xml:id="_main_8c_source_1l00336"/>00336 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>(!jogo_acabou)
+<anchor xml:id="_main_8c_source_1l00337"/>00337 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;{
+<anchor xml:id="_main_8c_source_1l00338"/>00338 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;religar_adc();
+<anchor xml:id="_main_8c_source_1l00339"/>00339 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;estado_laser&#32;=&#32;<emphasis role="keyword">true</emphasis>;
+<anchor xml:id="_main_8c_source_1l00340"/>00340 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00341"/>00341 
+<anchor xml:id="_main_8c_source_1l00342"/>00342 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00343"/>00343 
+<anchor xml:id="_main_8c_source_1l00344"/>00344 &#32;&#32;&#32;&#32;}
+<anchor xml:id="_main_8c_source_1l00345"/>00345 
+<anchor xml:id="_main_8c_source_1l00346"/>00346 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+<anchor xml:id="_main_8c_source_1l00347"/>00347 }
+</programlisting></section>
