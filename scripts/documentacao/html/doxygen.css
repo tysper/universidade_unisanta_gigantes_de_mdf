@@ -1789,11 +1789,13 @@ dl.invariant dt, dl.pre dt, dl.post dt {
 	text-align: center;
 	vertical-align: bottom;
 	border-collapse: separate;
+        width: 200px;
 }
 
 #projectlogo img
 {
 	border: 0px none;
+        width: 100%;
 }
 
 #projectalign
@@ -1828,11 +1830,15 @@ dl.invariant dt, dl.pre dt, dl.post dt {
 
 #titlearea
 {
-	padding: 0px;
+	padding: 50px;
 	margin: 0px;
 	width: 100%;
 	border-bottom: 1px solid var(--title-separator-color);
 	background-color: var(--title-background-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
 }
 
 .image
