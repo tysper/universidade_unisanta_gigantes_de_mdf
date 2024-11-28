@@ -23,16 +23,30 @@ Construir um robô funcional capaz de:
 - Sistema de movimentação em 4, 3 ou 2 rodas, permitindo rotações no próprio eixo.
 - "Arma laser" centralizada e receptor de luz posicionado lateralmente.
 
+Diagrama feito no autocad:
+
+<img src="https://i.ibb.co/gz2DRw0/Screenshot-179.png" alt="Screenshot-179" border="0" width="640">
+<i>Feito por <a href="https://github.com/tysper">Pedro Nunes</a></i>
+
 ### Eletrônica
 - Circuitos para controle de motores projetados manualmente (sem shields prontos).
 - Laser com potência máxima de **300 mW** e receptor de luz com difusor de 20 mm.
 - LEDs indicativos para "vidas", com controle de estado por GPIO e um botão para reset.
+
+<p>Circuito da placa principal desenvolvida para abrigar o microcontrolador ATMega328</p>
+<img src="https://i.ibb.co/WPhnfsy/Screenshot-180.png" alt="Screenshot-180" border="0" width="640">
+<br>
+<p>Circuito da placa de ponte H</p>
+<img src="https://i.ibb.co/ftBYP19/Screenshot-181.png" alt="Screenshot-181" border="0"></a><br /><a target='_blank' href='https://imgbb.com/'>fotos u2 brasil</a>
+<i>Feito por <a href="https://github.com/gabriele-siilva">Gabriele Silva</a></i>
 
 ### Programação
 - Uso obrigatório de timers para controle do laser.
 - Interrupções para funcionalidade do botão de reset.
 - Controle dos motores baseado em PWM.
 - Reação programada ao impacto de laser: desativação temporária do robô e decremento de LEDs.
+
+<i>Feito por <a href="https://github.com/gabriele-siilva">Gabriele Silva</a>, <a href="https://github.com/tysper">Pedro Nunes</a>, <a href="https://github.com/arthursilles">Arthur Silles</a> e <a href="https://github.com/imyourmafe">Maria Fernanda</a>.</i>
 
 ## Estrutura de Desenvolvimento
 
@@ -42,7 +56,10 @@ O protótipo inicial do robô foi concluído, com movimentação básica utiliza
 ###  2. Circuito Eletrônico e Funcionalidades Básicas - 31 de outubro de 2024 ✅
 O circuito eletrônico foi projetado e integrado ao microcontrolador **ATMega328(p)(PB)**. Todas as funcionalidades básicas, incluindo controle dos motores, operação da "arma laser" e detecção do alvo foram implementadas, mas houveram alguns problemas que impediram a apresentação ao professor.
 
-### 3. Apresentação Final - 23 de novembro de 2024 ⚠️
+### 3. Apresentação Final - 23 de novembro de 2024 ✅
+Apresentação concluída com sucesso. O video abaixo demonstra as funcionalidades básicas do projeto:
+
+<iframe src="https://drive.google.com/file/d/1mjpHybZGSYsJEZXwXcPd9ix581dAYIp9/preview" width="640" height="480" allow="autoplay"></iframe>
 
 
 ## Ferramentas e Requisitos Adicionais
