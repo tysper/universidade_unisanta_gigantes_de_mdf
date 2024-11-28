@@ -37,7 +37,7 @@ Diagrama feito no autocad:
 <img src="https://i.ibb.co/WPhnfsy/Screenshot-180.png" alt="Screenshot-180" border="0" width="640">
 <br>
 <p>Circuito da placa de ponte H</p>
-<img src="https://i.ibb.co/ftBYP19/Screenshot-181.png" alt="Screenshot-181" border="0"></a><br /><a target='_blank' href='https://imgbb.com/'>fotos u2 brasil</a>
+<img src="https://i.ibb.co/ftBYP19/Screenshot-181.png" alt="Screenshot-181" border="0"></a><br />
 <i>Feito por <a href="https://github.com/gabriele-siilva">Gabriele Silva</a></i>
 
 ### Programação
