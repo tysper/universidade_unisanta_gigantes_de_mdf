@@ -59,7 +59,7 @@ O circuito eletrônico foi projetado e integrado ao microcontrolador **ATMega328
 ### 3. Apresentação Final - 23 de novembro de 2024 ✅
 Apresentação concluída com sucesso. O video abaixo demonstra as funcionalidades básicas do projeto:
 
-<video src="https://drive.google.com/file/d/1mjpHybZGSYsJEZXwXcPd9ix581dAYIp9/preview" width="640" height="480" allow="autoplay"></video>
+[![Veja o vídeo](https://img.youtube.com/vi/1mjpHybZGSYsJEZXwXcPd9ix581dAYIp9/0.jpg)](https://drive.google.com/file/d/1mjpHybZGSYsJEZXwXcPd9ix581dAYIp9/preview)
 
 
 ## Ferramentas e Requisitos Adicionais
